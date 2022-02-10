@@ -12,7 +12,11 @@ class HomePageState extends State<HomePageWidget> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Text(AppLocalizations.of(context)!.helloWorld),
+      child: Column(
+        children: [
+          Text(AppLocalizations.of(context)!.helloWorld),
+        ],
+      ),
     );
   }
 }
