@@ -1,6 +1,6 @@
+import 'package:creighton_app/selection_data.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class NewEditPageWidget extends StatefulWidget {
   const NewEditPageWidget({Key? key, required this.title}) : super(key: key);
@@ -13,36 +13,17 @@ class NewEditPageState extends State<NewEditPageWidget> {
   DateTime selectedDate = DateTime.now();
   String? dayTypeDropdownValue;
   String? menstrualTypeDropdownValue;
+  String? elasticityTypeDropdownValue;
+  String? colorTypeDropdownValue;
   bool _menstrualShow = false;
+  bool _elasticityShow = false;
+  bool _colorShow = false;
   TextEditingController dateCtl = TextEditingController();
   DateFormat formatter = DateFormat.yMMMMd();
   @override
   Widget build(BuildContext context) {
-    Map<String, String> imageLabels = {
-      'peak': AppLocalizations.of(context)!.peak,
-      'peak_1': AppLocalizations.of(context)!.peak_1,
-      'peak_2': AppLocalizations.of(context)!.peak_2,
-      'peak_3': AppLocalizations.of(context)!.peak_3,
-      'peak_p': AppLocalizations.of(context)!.peak_p,
-      'g_peak': AppLocalizations.of(context)!.g_peak,
-      'g_peak_1': AppLocalizations.of(context)!.g_peak_1,
-      'g_peak_2': AppLocalizations.of(context)!.g_peak_2,
-      'g_peak_3': AppLocalizations.of(context)!.g_peak_3,
-      'y_peak': AppLocalizations.of(context)!.y_peak,
-      'y_peak_1': AppLocalizations.of(context)!.y_peak_1,
-      'y_peak_2': AppLocalizations.of(context)!.y_peak_2,
-      'y_peak_3': AppLocalizations.of(context)!.y_peak_3,
-      'red': AppLocalizations.of(context)!.red,
-      'green': AppLocalizations.of(context)!.green,
-      'yellow': AppLocalizations.of(context)!.yellow,
-    };
-    Map<String, String> menstrualLabels = {
-      "menstrual_h": AppLocalizations.of(context)!.menstrual_h,
-      "menstrual_m": AppLocalizations.of(context)!.menstrual_m,
-      "menstrual_l": AppLocalizations.of(context)!.menstrual_l,
-      "menstrual_vl": AppLocalizations.of(context)!.menstrual_vl,
-      "menstrual_b": AppLocalizations.of(context)!.menstrual_b,
-    };
+    final SelectionData selectionData = SelectionData(context);
+
     return Center(
       child: Form(
           child: Scrollbar(
@@ -86,7 +67,7 @@ class NewEditPageState extends State<NewEditPageWidget> {
                     hint: const Center(
                       child: Text("Select day type"),
                     ),
-                    items: imageLabels.keys
+                    items: selectionData.imageLabels.keys
                         .map<DropdownMenuItem<String>>((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
@@ -99,7 +80,7 @@ class NewEditPageState extends State<NewEditPageWidget> {
                                   'assets/images/' + value + '.png'),
                             ),
                             const SizedBox(width: 50),
-                            Text(imageLabels[value]!),
+                            Text(selectionData.imageLabels[value]!),
                           ],
                         ),
                       );
@@ -109,6 +90,7 @@ class NewEditPageState extends State<NewEditPageWidget> {
                         if (newValue == "red") {
                           _menstrualShow = true;
                         } else {
+                          _elasticityShow = true;
                           _menstrualShow = false;
                         }
                         dayTypeDropdownValue = newValue!;
@@ -126,19 +108,81 @@ class NewEditPageState extends State<NewEditPageWidget> {
                           hint: const Center(
                             child: Text("Select menstrual flow type"),
                           ),
-                          items: menstrualLabels.keys
+                          items: selectionData.menstrualLabels.keys
                               .map<DropdownMenuItem<String>>((String value) {
                             return DropdownMenuItem<String>(
                                 value: value,
-                                child: Text(menstrualLabels[value]!));
+                                child: Text(
+                                    selectionData.menstrualLabels[value]!));
                           }).toList(),
                           onChanged: (String? newValue) {
+                            if (['menstrual_l', 'menstrual_vl', 'menstrual_b']
+                                .contains(newValue)) {
+                              _elasticityShow = true;
+                            } else {
+                              _elasticityShow = false;
+                            }
                             setState(() {
                               menstrualTypeDropdownValue = newValue!;
                             });
                           },
                           isExpanded: true,
                           value: menstrualTypeDropdownValue,
+                        ),
+                      )),
+                  const SizedBox(height: 10),
+                  Visibility(
+                      visible: _elasticityShow,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton(
+                          icon: const Icon(Icons.arrow_downward),
+                          hint: const Center(
+                            child: Text("Select elasticity"),
+                          ),
+                          items: selectionData.elasticityLabels.keys
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(
+                                    selectionData.elasticityLabels[value]!));
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            if (['6', '8', '10'].contains(newValue) &&
+                                _elasticityShow) {
+                              _colorShow = true;
+                            } else {
+                              _colorShow = false;
+                            }
+                            setState(() {
+                              elasticityTypeDropdownValue = newValue!;
+                            });
+                          },
+                          isExpanded: true,
+                          value: elasticityTypeDropdownValue,
+                        ),
+                      )),
+                  const SizedBox(height: 10),
+                  Visibility(
+                      visible: _colorShow,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton(
+                          icon: const Icon(Icons.arrow_downward),
+                          hint: const Center(
+                            child: Text("Select color"),
+                          ),
+                          items: selectionData.colorLabels.keys
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(selectionData.colorLabels[value]!));
+                          }).toList(),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              colorTypeDropdownValue = newValue!;
+                            });
+                          },
+                          isExpanded: true,
+                          value: colorTypeDropdownValue,
                         ),
                       ))
                 ],
