@@ -76,8 +76,7 @@ class NewEditPageState extends State<NewEditPageWidget> {
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(5),
-                              child: Image.asset(
-                                  'assets/images/' + value + '.png'),
+                              child: Image.asset('assets/images/$value.png'),
                             ),
                             const SizedBox(width: 50),
                             Text(selectionData.imageLabels[value]!),
