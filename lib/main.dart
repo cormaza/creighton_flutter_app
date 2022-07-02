@@ -1,14 +1,20 @@
-import 'package:creighton_app/home.dart';
-import 'package:creighton_app/profile.dart';
-import 'package:creighton_app/about.dart';
-import 'package:creighton_app/calendar_view.dart';
-import 'package:creighton_app/new_record.dart';
-import 'package:creighton_app/settings.dart';
+import 'package:creighton_app/controllers/main_controller.dart';
+import 'package:creighton_app/controllers/messages.dart';
+import 'package:creighton_app/models/enums.dart';
+import 'package:creighton_app/views/button_navigation_bar.dart';
+import 'package:creighton_app/views/drawer.dart';
+import 'package:creighton_app/views/home.dart';
+import 'package:creighton_app/views/profile.dart';
+import 'package:creighton_app/views/about.dart';
+import 'package:creighton_app/views/calendar_view.dart';
+import 'package:creighton_app/views/new_record.dart';
+import 'package:creighton_app/views/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:get/get.dart';
 
-void main() {
+void main() async {
   runApp(const MyApp());
 }
 
@@ -17,7 +23,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Creighton Record App',
       theme: ThemeData(
@@ -37,141 +43,66 @@ class MyApp extends StatelessWidget {
         Locale('en', ''),
         Locale('es', ''),
       ],
-      home: const MyHomePage(title: 'Creighton App Register'),
+      translations: Messages(),
+      initialBinding: MainBinding(),
+      initialRoute: '/',
+      getPages: [
+        GetPage(
+          name: '/',
+          page: () => const MyHomePage(),
+          binding: MainBinding(),
+        )
+      ],
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  Widget widgetForBody = const HomePageWidget(title: "Home Page");
-  int _selectedIndex = 0;
-
+@immutable
+class MyHomePage extends GetView<MainController> {
+  const MyHomePage({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      drawer: Drawer(
-          backgroundColor: Colors.pink.shade200,
-          child: ListView(
-            padding: EdgeInsets.zero,
-            children: [
-              UserAccountsDrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.pink.shade200,
-                ),
-                accountName: const Text("Isabel Lombeida"),
-                accountEmail: const Text("isa.lombeida@gmail.com"),
-                currentAccountPicture: CircleAvatar(
-                  backgroundColor:
-                      Theme.of(context).platform == TargetPlatform.iOS
-                          ? Colors.pinkAccent
-                          : Colors.white,
-                  child: const Text(
-                    "IL",
-                    style: TextStyle(fontSize: 40.0),
-                  ),
-                ),
-                onDetailsPressed: () {},
-              ),
-              ListTile(
-                trailing: const Icon(Icons.home),
-                title: const Text('Home'),
-                onTap: () {
-                  setState(() {
-                    widgetForBody = const HomePageWidget(title: "Home");
-                    _selectedIndex = 0;
-                    Navigator.pop(context);
-                  });
-                },
-              ),
-              ListTile(
-                trailing: const Icon(Icons.account_circle),
-                title: const Text('Profile'),
-                onTap: () {
-                  setState(() {
-                    widgetForBody = const ProfilePageWidget(title: "Profile");
-                    _selectedIndex = 0;
-                    Navigator.pop(context);
-                  });
-                },
-              ),
-              ListTile(
-                trailing: const Icon(Icons.info),
-                title: const Text('About'),
-                onTap: () {
-                  setState(() {
-                    widgetForBody = const AboutPageWidget(title: "About");
-                    _selectedIndex = 0;
-                    Navigator.pop(context);
-                  });
-                },
-              ),
-              ListTile(
-                trailing: const Icon(Icons.settings),
-                title: const Text('Settings'),
-                onTap: () {
-                  setState(() {
-                    widgetForBody = const SettingsPageWidget(title: "Profile");
-                    _selectedIndex = 0;
-                    Navigator.pop(context);
-                  });
-                },
-              ),
-              ListTile(
-                trailing: const Icon(Icons.arrow_back),
-                title: const Text('Return'),
-                onTap: () {
-                  Navigator.pop(context);
-                },
-              ),
-            ],
-          )),
-      body: widgetForBody,
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.pink.shade200,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline),
-            label: 'New Record',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.event_available),
-            label: 'History',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.white,
-        onTap: (index) {
-          _selectedIndex = index;
-          setState(() {
-            switch (index) {
-              case 0:
-                widgetForBody = const HomePageWidget(title: "Home");
-                break;
-              case 1:
-                widgetForBody = const NewEditPageWidget(title: "New / Edit");
-                break;
-              case 2:
-                widgetForBody = const CalendarPageWidget(title: "Calendar");
-                break;
-            }
-          });
+      appBar: AppBar(title: Obx(
+        () {
+          return Text(controller.title.value);
         },
-      ),
+      )),
+      key: controller.scaffoldKey,
+      drawer: DrawerMenu(),
+      body: Obx(() {
+        switch (controller.currentMode.value) {
+          case PageMode.home:
+            {
+              return const HomePageWidget(title: "Home");
+            }
+          case PageMode.newrecord:
+            {
+              return const NewEditPageWidget(title: "Home");
+            }
+          case PageMode.calendar:
+            {
+              return const CalendarPageWidget(title: "Home");
+            }
+          case PageMode.profile:
+            {
+              return const ProfilePageWidget(title: "Home");
+            }
+          case PageMode.about:
+            {
+              return const AboutPageWidget(title: "Home");
+            }
+          case PageMode.settings:
+            {
+              return const SettingsPageWidget(title: "Home");
+            }
+          default:
+            {
+              return const HomePageWidget(title: "Home");
+            }
+        }
+      }),
+      bottomNavigationBar: CustomButtonNavigationBar(),
     );
   }
 }

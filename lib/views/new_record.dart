@@ -1,4 +1,4 @@
-import 'package:creighton_app/selection_data.dart';
+import 'package:creighton_app/views/selection_data.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
